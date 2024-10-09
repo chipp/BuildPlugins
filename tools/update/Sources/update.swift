@@ -1,3 +1,4 @@
+import ArgumentParser
 import Basics
 import CryptoKit
 import Foundation
@@ -15,9 +16,14 @@ struct BinaryDependency {
 }
 
 @main
-struct Update {
-    static func main() async throws {
-        let packagePath = try AbsolutePath(validating: #filePath).parentDirectory.parentDirectory.parentDirectory.parentDirectory
+struct Update: AsyncParsableCommand {
+    @Argument(transform: RelativePath.init(validating:))
+    var packagePath: RelativePath
+
+    mutating func run() async throws {
+        let workingDirectory = try AbsolutePath(validating: FileManager.default.currentDirectoryPath)
+        let packagePath = workingDirectory.appending(packagePath)
+
         let observability = ObservabilitySystem({ print("[SwiftPM] \($0): \($1)") })
         let workspace = try Workspace(forRootPackage: packagePath)
         let manifest = try await workspace.loadRootManifest(at: packagePath, observabilityScope: observability.topScope)
@@ -31,6 +37,8 @@ struct Update {
                 group.addTask {
                     let (org, repo) = parseRepoURL(url)
                     let latestRelease = try await findLatestRelease(org: org, repo: repo)
+
+                    print("found latest release for \(target.name): \(latestRelease.tagName)")
 
                     guard let artifactBundleUrl = findArtifactBundle(in: latestRelease) else {
                         throw GenericError(errorDescription: "cannot find artifact bundle for \(target.name) in \(latestRelease.tagName)")
@@ -82,6 +90,8 @@ struct Update {
 
         let manifestContent = try updatedManifest.generateManifestFileContents(packageDirectory: packagePath)
         try manifestContent.write(to: packagePath.asURL.appending(component: "Package.swift"), atomically: true, encoding: .utf8)
+
+        print("Updated manifest file at \(packagePath.asURL.appending(component: "Package.swift").path())")
     }
 }
 

@@ -61,12 +61,12 @@ private func makeArguments(
         "lint",
         "--fix",
         "--cache-path",
-        pluginWorkDirectory.appending(components: "swiftformat.cache").absoluteString,
+        pluginWorkDirectory.appending(components: "swiftformat.cache").path(),
         "--config",
-        root.appending(components: ".swiftlint.yml").absoluteString
+        root.appending(components: ".swiftlint.yml").path()
     ]
 
-    arguments.append(contentsOf: files.map(\.absoluteString))
+    arguments.append(contentsOf: files.map { $0.path() })
 
     return arguments
 }

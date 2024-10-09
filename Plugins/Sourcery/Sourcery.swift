@@ -62,24 +62,24 @@ private func makeCommand(
     files: [URL]
 ) throws -> PackagePlugin.Command {
     var arguments = [
-        "--output", pluginWorkDirectory.appending(components: "output").absoluteString
+        "--output", pluginWorkDirectory.appending(components: "output").path()
     ]
 
     if ProcessInfo.processInfo.environment["CI"] != "TRUE" {
         arguments.append(contentsOf: [
             "--cacheBasePath",
-            pluginWorkDirectory.appending(components: "sourcery.cache").absoluteString
+            pluginWorkDirectory.appending(components: "sourcery.cache").path()
         ])
     }
 
     for template in templates {
         arguments.append("--templates")
-        arguments.append(template.absoluteString)
+        arguments.append(template.path())
     }
 
     for file in files {
         arguments.append("--sources")
-        arguments.append(file.absoluteString)
+        arguments.append(file.path())
     }
 
     return .prebuildCommand(

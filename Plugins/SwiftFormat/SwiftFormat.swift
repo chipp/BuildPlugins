@@ -61,12 +61,12 @@ private func makeCommand(
     } else {
         arguments.append(contentsOf: [
             "--cache",
-            pluginWorkDirectory.appending(components: "swiftformat.cache").absoluteString
+            pluginWorkDirectory.appending(components: "swiftformat.cache").path()
         ])
         arguments.append("--lenient")
     }
 
-    arguments.append(contentsOf: files.map(\.absoluteString))
+    arguments.append(contentsOf: files.map { $0.path() })
 
     return .prebuildCommand(
         displayName: "SwiftFormat",

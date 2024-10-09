@@ -56,14 +56,14 @@ private func makeCommand(
 ) throws -> PackagePlugin.Command {
     var arguments: [String] = [
         "lint",
-        "--config", root.appending(components: ".swiftlint.yml").absoluteString
+        "--config", root.appending(components: ".swiftlint.yml").path()
     ]
 
     let baselineFileURL = root.appending(components: ".swiftlint.baseline.json")
 
     if FileManager.default.fileExists(atPath: baselineFileURL.path) {
         arguments.append("--baseline")
-        arguments.append(baselineFileURL.absoluteString)
+        arguments.append(baselineFileURL.path())
     }
 
     if ProcessInfo.processInfo.environment["CI"] == "TRUE" {
@@ -72,11 +72,11 @@ private func makeCommand(
     } else {
         arguments.append(contentsOf: [
             "--cache-path",
-            pluginWorkDirectory.appending(components: "cache").absoluteString
+            pluginWorkDirectory.appending(components: "cache").path()
         ])
     }
 
-    arguments.append(contentsOf: files.map(\.absoluteString))
+    arguments.append(contentsOf: files.map { $0.path() })
 
     return .prebuildCommand(
         displayName: "SwiftLint",

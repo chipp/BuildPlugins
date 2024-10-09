@@ -50,10 +50,10 @@ private func makeArguments(
 ) -> [String] {
     var arguments = [
         "--cache",
-        pluginWorkDirectory.appending(components: "swiftformat.cache").absoluteString
+        pluginWorkDirectory.appending(components: "swiftformat.cache").path()
     ]
 
-    arguments.append(contentsOf: files.map(\.absoluteString))
+    arguments.append(contentsOf: files.map { $0.path() })
 
     return arguments
 }
