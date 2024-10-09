@@ -70,6 +70,8 @@ private func makeCommand(
             "--cacheBasePath",
             pluginWorkDirectory.appending(components: "sourcery.cache").path()
         ])
+    } else {
+        arguments.append("--disableCache")
     }
 
     for template in templates {
