@@ -59,13 +59,6 @@ private func makeCommand(
         "--config", root.appending(components: ".swiftlint.yml").path()
     ]
 
-    let baselineFileURL = root.appending(components: ".swiftlint.baseline.json")
-
-    if FileManager.default.fileExists(atPath: baselineFileURL.path) {
-        arguments.append("--baseline")
-        arguments.append(baselineFileURL.path())
-    }
-
     if ProcessInfo.processInfo.environment["CI"] == "TRUE" {
         arguments.append("--no-cache")
         arguments.append("--strict")
