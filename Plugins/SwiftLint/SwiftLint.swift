@@ -14,15 +14,15 @@ struct SwiftLint: BuildToolPlugin {
         context: PackagePlugin.PluginContext,
         target: any PackagePlugin.Target
     ) async throws -> [PackagePlugin.Command] {
-        guard let files = target.sourceModule?.sourceFiles(withSuffix: "swift").map(\.path) else {
+        guard let files = target.sourceModule?.sourceFiles(withSuffix: "swift").map(\.url) else {
             return []
         }
 
         return [
             try makeCommand(
-                executable: try context.tool(named: "swiftlint").path,
-                root: context.package.directory,
-                pluginWorkDirectory: context.pluginWorkDirectory,
+                executable: try context.tool(named: "swiftlint").url,
+                root: context.package.directoryURL,
+                pluginWorkDirectory: context.pluginWorkDirectoryURL,
                 files: files
             )
         ]
@@ -34,13 +34,13 @@ struct SwiftLint: BuildToolPlugin {
 
     extension SwiftLint: XcodeBuildToolPlugin {
         func createBuildCommands(context: XcodeProjectPlugin.XcodePluginContext, target: XcodeProjectPlugin.XcodeTarget) throws -> [PackagePlugin.Command] {
-            let files = target.inputFiles.filter { $0.type == .source }.map(\.path)
+            let files = target.inputFiles.filter { $0.type == .source }.map(\.url)
 
             return [
                 try makeCommand(
-                    executable: try context.tool(named: "swiftlint").path,
-                    root: context.xcodeProject.directory,
-                    pluginWorkDirectory: context.pluginWorkDirectory,
+                    executable: try context.tool(named: "swiftlint").url,
+                    root: context.xcodeProject.directoryURL,
+                    pluginWorkDirectory: context.pluginWorkDirectoryURL,
                     files: files
                 )
             ]
@@ -49,15 +49,22 @@ struct SwiftLint: BuildToolPlugin {
 #endif
 
 private func makeCommand(
-    executable: Path,
-    root: Path,
-    pluginWorkDirectory: Path,
-    files: [Path]
+    executable: URL,
+    root: URL,
+    pluginWorkDirectory: URL,
+    files: [URL]
 ) throws -> PackagePlugin.Command {
-    var arguments = [
+    var arguments: [String] = [
         "lint",
-        "--config", root.appending(".swiftlint.yml").string
+        "--config", root.appending(components: ".swiftlint.yml").absoluteString
     ]
+
+    let baselineFileURL = root.appending(components: ".swiftlint.baseline.json")
+
+    if FileManager.default.fileExists(atPath: baselineFileURL.path) {
+        arguments.append("--baseline")
+        arguments.append(baselineFileURL.absoluteString)
+    }
 
     if ProcessInfo.processInfo.environment["CI"] == "TRUE" {
         arguments.append("--no-cache")
@@ -65,16 +72,16 @@ private func makeCommand(
     } else {
         arguments.append(contentsOf: [
             "--cache-path",
-            pluginWorkDirectory.appending("cache").string
+            pluginWorkDirectory.appending(components: "cache").absoluteString
         ])
     }
 
-    arguments.append(contentsOf: files.map(\.string))
+    arguments.append(contentsOf: files.map(\.absoluteString))
 
     return .prebuildCommand(
         displayName: "SwiftLint",
         executable: executable,
         arguments: arguments,
-        outputFilesDirectory: pluginWorkDirectory.appending("output")
+        outputFilesDirectory: pluginWorkDirectory.appending(components: "output")
     )
 }

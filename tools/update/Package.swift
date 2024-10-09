@@ -7,7 +7,7 @@ let package = Package(
     name: "update",
     platforms: [.macOS(.v13)],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-package-manager", branch: "swift-5.10.1-RELEASE")
+        .package(url: "https://github.com/swiftlang/swift-package-manager", branch: "swift-6.0-RELEASE")
     ],
     targets: [
         .executableTarget(name: "update", dependencies: [

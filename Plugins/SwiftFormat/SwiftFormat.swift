@@ -14,15 +14,15 @@ struct SwiftFormat: BuildToolPlugin {
         context: PackagePlugin.PluginContext,
         target: any PackagePlugin.Target
     ) async throws -> [PackagePlugin.Command] {
-        guard let files = target.sourceModule?.sourceFiles(withSuffix: "swift").map(\.path) else {
+        guard let files = target.sourceModule?.sourceFiles(withSuffix: "swift").map(\.url) else {
             return []
         }
 
         return [
             try makeCommand(
-                executable: try context.tool(named: "swiftformat").path,
-                root: context.package.directory,
-                pluginWorkDirectory: context.pluginWorkDirectory,
+                executable: try context.tool(named: "swiftformat").url,
+                root: context.package.directoryURL,
+                pluginWorkDirectory: context.pluginWorkDirectoryURL,
                 files: files
             )
         ]
@@ -34,13 +34,13 @@ struct SwiftFormat: BuildToolPlugin {
 
     extension SwiftFormat: XcodeBuildToolPlugin {
         func createBuildCommands(context: XcodeProjectPlugin.XcodePluginContext, target: XcodeProjectPlugin.XcodeTarget) throws -> [PackagePlugin.Command] {
-            let files = target.inputFiles.filter { $0.type == .source }.map(\.path)
+            let files = target.inputFiles.filter { $0.type == .source }.map(\.url)
 
             return [
                 try makeCommand(
-                    executable: try context.tool(named: "swiftformat").path,
-                    root: context.xcodeProject.directory,
-                    pluginWorkDirectory: context.pluginWorkDirectory,
+                    executable: try context.tool(named: "swiftformat").url,
+                    root: context.xcodeProject.directoryURL,
+                    pluginWorkDirectory: context.pluginWorkDirectoryURL,
                     files: files
                 )
             ]
@@ -49,10 +49,10 @@ struct SwiftFormat: BuildToolPlugin {
 #endif
 
 private func makeCommand(
-    executable: Path,
-    root: Path,
-    pluginWorkDirectory: Path,
-    files: [Path]
+    executable: URL,
+    root: URL,
+    pluginWorkDirectory: URL,
+    files: [URL]
 ) throws -> PackagePlugin.Command {
     var arguments = ["--lint"]
 
@@ -61,17 +61,17 @@ private func makeCommand(
     } else {
         arguments.append(contentsOf: [
             "--cache",
-            pluginWorkDirectory.appending("swiftformat.cache").string
+            pluginWorkDirectory.appending(components: "swiftformat.cache").absoluteString
         ])
         arguments.append("--lenient")
     }
 
-    arguments.append(contentsOf: files.map(\.string))
+    arguments.append(contentsOf: files.map(\.absoluteString))
 
     return .prebuildCommand(
         displayName: "SwiftFormat",
         executable: executable,
         arguments: arguments,
-        outputFilesDirectory: pluginWorkDirectory.appending("output")
+        outputFilesDirectory: pluginWorkDirectory.appending(components: "output")
     )
 }
