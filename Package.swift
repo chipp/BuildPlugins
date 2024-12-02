@@ -75,13 +75,13 @@ let package = Package(
         ),
         .binaryTarget(
             name: "swiftformat",
-            url: "https://github.com/nicklockwood/SwiftFormat/releases/download/0.54.6/swiftformat.artifactbundle.zip",
-            checksum: "c3779e2b05ac0b980ab9fbd291821bc435ce82576ba2c68e8ae9cdc22c0c9648"
+            url: "https://github.com/nicklockwood/SwiftFormat/releases/download/0.55.3/swiftformat.artifactbundle.zip",
+            checksum: "5c28b67a7c64b2494324b0fe7c1a6c73bb42cc3f673f9be36fa7759cc55b34f7"
         ),
         .binaryTarget(
             name: "swiftlint",
-            url: "https://github.com/realm/SwiftLint/releases/download/0.57.0/SwiftLintBinary-macos.artifactbundle.zip",
-            checksum: "a1bbafe57538077f3abe4cfb004b0464dcd87e8c23611a2153c675574b858b3a"
+            url: "https://github.com/realm/SwiftLint/releases/download/0.57.1/SwiftLintBinary-macos.artifactbundle.zip",
+            checksum: "c88bf3e5bc1326d8ca66bc3f9eae786f2094c5172cd70b26b5f07686bb883899"
         )
     ]
 )
